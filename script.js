@@ -63,16 +63,21 @@ function createHeartLayout() {
 // Initialize the layout when the page loads
 window.addEventListener('load', createHeartLayout);
 
-// Zoom on click/tap for heart images
-const container = document.getElementById('heartContainer');
-container.addEventListener('click', function(e) {
+// Lightbox zoom for heart images
+const lightboxOverlay = document.getElementById('lightboxOverlay');
+const lightboxImg = document.getElementById('lightboxImg');
+const heartContainer = document.getElementById('heartContainer');
+
+heartContainer.addEventListener('click', function(e) {
     if (e.target.classList.contains('heart-image')) {
-        // Remove zoom from all images
-        document.querySelectorAll('.heart-image').forEach(img => img.classList.remove('zoomed'));
-        // Add zoom to clicked image
-        e.target.classList.add('zoomed');
-    } else {
-        // Clicked outside, remove zoom
-        document.querySelectorAll('.heart-image').forEach(img => img.classList.remove('zoomed'));
+        lightboxImg.src = e.target.src;
+        lightboxOverlay.style.display = 'flex';
+    }
+});
+
+lightboxOverlay.addEventListener('click', function(e) {
+    if (e.target === lightboxOverlay) {
+        lightboxOverlay.style.display = 'none';
+        lightboxImg.src = '';
     }
 }); 
