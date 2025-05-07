@@ -72,12 +72,110 @@ heartContainer.addEventListener('click', function(e) {
     if (e.target.classList.contains('heart-image')) {
         lightboxImg.src = e.target.src;
         lightboxOverlay.style.display = 'flex';
+        // Trigger reflow
+        void lightboxOverlay.offsetWidth;
+        lightboxOverlay.classList.add('active');
     }
 });
 
 lightboxOverlay.addEventListener('click', function(e) {
     if (e.target === lightboxOverlay) {
-        lightboxOverlay.style.display = 'none';
-        lightboxImg.src = '';
+        lightboxOverlay.classList.remove('active');
+        setTimeout(() => {
+            lightboxOverlay.style.display = 'none';
+            lightboxImg.src = '';
+        }, 300);
     }
-}); 
+});
+
+// --- Falling Particles Animation ---
+(function() {
+    const canvas = document.getElementById('particlesCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+
+    function resizeCanvas() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+    }
+    window.addEventListener('resize', resizeCanvas);
+
+    // Load images for heart, petal, sparkle
+    const imageSources = {
+        heart: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/2764.png',
+        petal: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f339.png',
+        sparkle: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/2728.png'
+    };
+    const images = {};
+    let imagesLoaded = 0;
+    const totalImages = Object.keys(imageSources).length;
+    for (const key in imageSources) {
+        images[key] = new Image();
+        images[key].crossOrigin = 'anonymous';
+        images[key].src = imageSources[key];
+        images[key].onload = () => {
+            imagesLoaded++;
+        };
+    }
+
+    const PARTICLE_TYPES = ['heart', 'petal', 'sparkle'];
+
+    function randomType() {
+        return PARTICLE_TYPES[Math.floor(Math.random() * PARTICLE_TYPES.length)];
+    }
+
+    function createParticle() {
+        const type = randomType();
+        const size = Math.random() * 18 + 24; // 24-42px
+        return {
+            x: Math.random() * width,
+            y: -size,
+            size,
+            speed: Math.random() * 1.2 + 0.6,
+            drift: (Math.random() - 0.5) * 0.6,
+            type,
+            angle: Math.random() * Math.PI * 2,
+            rotateSpeed: (Math.random() - 0.5) * 0.01
+        };
+    }
+
+    let particles = [];
+    for (let i = 0; i < 28; i++) particles.push(createParticle());
+
+    function drawParticle(p) {
+        const img = images[p.type];
+        if (!img || !img.complete) return;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.angle);
+        ctx.globalAlpha = 0.85;
+        ctx.drawImage(img, -p.size/2, -p.size/2, p.size, p.size);
+        ctx.globalAlpha = 1;
+        ctx.restore();
+    }
+
+    function animate() {
+        if (imagesLoaded < totalImages) {
+            requestAnimationFrame(animate);
+            return;
+        }
+        ctx.clearRect(0, 0, width, height);
+        for (let p of particles) {
+            p.y += p.speed;
+            p.x += p.drift;
+            p.angle += p.rotateSpeed;
+            drawParticle(p);
+        }
+        // Remove off-screen and add new
+        particles = particles.filter(p => p.y < height + 40);
+        while (particles.length < 28) particles.push(createParticle());
+        requestAnimationFrame(animate);
+    }
+    animate();
+})(); 

@@ -8,12 +8,25 @@
 
 body {
     font-family: 'Arial', sans-serif;
-    background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+    background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 50%, #ffd1ff 100%);
+    background-attachment: fixed;
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 10px;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
 }
 
 .container {
@@ -36,11 +49,14 @@ body {
     height: 800px;
     max-height: 80vw;
     margin: 16px auto;
-    background: #111;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 40px;
     transition: width 0.3s, height 0.3s;
     overflow: hidden;
     padding: 32px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 .heart-image {
@@ -54,8 +70,15 @@ body {
     object-fit: cover;
     box-shadow: 0 0 6px rgba(0, 0, 0, 0.18);
     transition: transform 0.3s, box-shadow 0.3s;
-    border-radius: 0;
+    border-radius: 8px;
     margin: 0;
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
 }
 
 .heart-image.zoomed {
@@ -65,19 +88,28 @@ body {
 }
 
 .heart-image:hover {
-    transform: scale(1.08);
+    transform: scale(1.15) rotate(5deg);
     z-index: 1;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
 .heart-message-heading {
     margin-top: 1.5rem;
     color: #fff;
-    font-size: 2.0rem;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.18);
+    font-size: 2.5rem;
     font-family: 'Dancing Script', cursive;
     font-weight: 700;
     letter-spacing: 0.5px;
     text-align: center;
+    background: linear-gradient(90deg, #ff4e50 0%, #fc913a 50%, #f9d423 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.45), 0 1px 0 #fff;
+    padding: 0.5em 1em;
+    border-radius: 16px;
+    background-color: rgba(255,255,255,0.18);
+    display: inline-block;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
 .heart-message {
@@ -140,26 +172,39 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.7);
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
     z-index: 1000;
     box-sizing: border-box;
-    padding: 0;
+    padding: 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.lightbox-overlay.active {
+    opacity: 1;
 }
 
 .lightbox-img {
-    max-width: 80%;
-    max-height: 80%;
+    max-width: 90%;
+    max-height: 90%;
     width: auto;
     height: auto;
     border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     background: #fff;
     object-fit: contain;
     display: block;
     margin: 0 auto;
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.lightbox-overlay.active .lightbox-img {
+    transform: scale(1);
 } 
